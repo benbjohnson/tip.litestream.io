@@ -13,6 +13,9 @@ useful when you do not have a configuration file.</p><pre><code>litestream snaps
 -replica NAME
     Optional, filters by replica.
     Only applies when listing database snapshots.
+
+-no-expand-env
+    Disables environment variable expansion in configuration file.
 </code></pre><h2 id=example>Example<a href=#example class=anchor aria-hidden=true>#</a></h2><h3 id=database-snapshots>Database snapshots<a href=#database-snapshots class=anchor aria-hidden=true>#</a></h3><p>List all snapshots across all replicas for the <code>/var/lib/db</code> database:</p><pre><code>$ litestream snapshots /var/lib/db
 </code></pre><h3 id=filter-by-replica-name>Filter by replica name<a href=#filter-by-replica-name class=anchor aria-hidden=true>#</a></h3><p>Lists all snapshots for the <code>/var/lib/db</code> database but filters by the <code>s3</code> replica:</p><pre><code>$ litestream snapshots -replica s3 /var/lib/db
 </code></pre><h3 id=replica-url-snapshots>Replica URL snapshots<a href=#replica-url-snapshots class=anchor aria-hidden=true>#</a></h3><p>Lists all snapshots for a single replica URL:</p><pre><code>$ litestream snapshots s3://mybkt.litestream.io/db

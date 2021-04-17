@@ -39,6 +39,9 @@ as on a development machine.</p><pre><code>litestream restore [arguments] REPLIC
 -config PATH
     Specifies the configuration file.
     Defaults to /etc/litestream.yml
+
+-no-expand-env
+    Disables environment variable expansion in configuration file.
 </code></pre><h2 id=examples>Examples<a href=#examples class=anchor aria-hidden=true>#</a></h2><h3 id=database-restore>Database restore<a href=#database-restore class=anchor aria-hidden=true>#</a></h3><p>Restore the latest replica for the <code>/var/lib/db</code> database to its original
 location:</p><pre><code>$ litestream restore /var/lib/db
 </code></pre><h3 id=replica-url-restore>Replica URL restore<a href=#replica-url-restore class=anchor aria-hidden=true>#</a></h3><p>Restore from an S3 replica URL to <code>/tmp/my.db</code>:</p><pre><code>$ litestream restore -o /tmp/my.db s3://mybkt.litestream.io/my.db
