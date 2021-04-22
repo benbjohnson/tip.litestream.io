@@ -22,15 +22,15 @@ We&rsquo;ll start by creating a new table:</p><pre><code>CREATE TABLE fruits (na
 </code></pre><p>And we can add some data to our table:</p><pre><code>INSERT INTO fruits (name, color) VALUES ('apple', 'red');
 INSERT INTO fruits (name, color) VALUES ('banana', 'yellow');
 </code></pre><h2 id=replicating-your-database>Replicating your database<a href=#replicating-your-database class=anchor aria-hidden=true>#</a></h2><p><strong>In a separate terminal window</strong>, we&rsquo;ll run Litestream to replicate our new
-database. Make sure both terminal windows are using the same working directory.</p><p>First, we&rsquo;ll set our MinIO credentials to our environment variables:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=nb>export</span> <span class=nv>AWS_ACCESS_KEY_ID</span><span class=o>=</span>minioadmin
-<span class=nb>export</span> <span class=nv>AWS_SECRET_ACCESS_KEY</span><span class=o>=</span>minioadmin
+database. Make sure both terminal windows are using the same working directory.</p><p>First, we&rsquo;ll set our MinIO credentials to our environment variables:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=nb>export</span> <span class=nv>LITESTREAM_ACCESS_KEY_ID</span><span class=o>=</span>minioadmin
+<span class=nb>export</span> <span class=nv>LITESTREAM_SECRET_ACCESS_KEY</span><span class=o>=</span>minioadmin
 </code></pre></div><p>Next, run Litesteam&rsquo;s <code>replicate</code> command to start replication:</p><pre><code>litestream replicate fruits.db s3://mybkt.localhost:9000/fruits.db
 </code></pre><p>You should see Litestream print some initialization commands and then wait
 indefinitely. Normally, Litestream is run as a background service so it
 continuously watches your database for new changes so the command does not exit.</p><p>If you open the <a href=http://localhost:9000/minio/mybkt/>MinIO Console</a>,
 you will see there is a <code>fruits.db</code> directory in your bucket.</p><h2 id=restoring-your-database>Restoring your database<a href=#restoring-your-database class=anchor aria-hidden=true>#</a></h2><p><strong>In a third terminal window</strong>, we&rsquo;ll restore our database to a new file. First,
-make sure your environment variables are set correctly:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=nb>export</span> <span class=nv>AWS_ACCESS_KEY_ID</span><span class=o>=</span>minioadmin
-<span class=nb>export</span> <span class=nv>AWS_SECRET_ACCESS_KEY</span><span class=o>=</span>minioadmin
+make sure your environment variables are set correctly:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=nb>export</span> <span class=nv>LITESTREAM_ACCESS_KEY_ID</span><span class=o>=</span>minioadmin
+<span class=nb>export</span> <span class=nv>LITESTREAM_SECRET_ACCESS_KEY</span><span class=o>=</span>minioadmin
 </code></pre></div><p>Then run:</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh>litestream restore -o fruits2.db s3://mybkt.localhost:9000/fruits.db
 </code></pre></div><p>This will pull down the backup from MinIO and write it to the <code>fruits2.db</code> file.
 You can verify the database matches by executing a query on our file:</p><pre><code>sqlite3 fruits2.db 'SELECT * FROM fruits'
