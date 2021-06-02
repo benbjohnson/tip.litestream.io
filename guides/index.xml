@@ -59,6 +59,17 @@ Setup Create an IAM user You will need to set up a user with programmatic access
     </item>
     
     <item>
+      <title>Replicating to Azure Blob Storage</title>
+      <link>https://tip.litestream.io/guides/azure/</link>
+      <pubDate>Wed, 02 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://tip.litestream.io/guides/azure/</guid>
+      <description>This guide will show you how to use Litestream to replicate to an Azure Blob Storage container. You will need an Azure account and to complete this guide.
+Setup Create a container In the Azure Portal, use the top search bar to navigate to &amp;ldquo;Storage Accounts&amp;rdquo;. If you do not have a storage account, click the &amp;ldquo;New&amp;rdquo; button, enter your storage account name, and click &amp;ldquo;Review + create&amp;rdquo;.
+Once you have a storage account, select it from the list of accounts and navigate to the Containers subsection.</description>
+    </item>
+    
+    <item>
       <title>Replicating to Backblaze B2</title>
       <link>https://tip.litestream.io/guides/backblaze/</link>
       <pubDate>Sat, 27 Feb 2021 00:00:00 +0000</pubDate>
