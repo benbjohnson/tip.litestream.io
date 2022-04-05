@@ -190,19 +190,19 @@ Azure Blob Storage guide</em></a>.</p>
 <p><a href="https://cloud.google.com/storage">Google Cloud Storage</a> was originally supported in Litestream via its
 S3-compatible API, however, it turns out that it&rsquo;s not all that compatible.
 We&rsquo;ve integrated the native <a href="https://cloud.google.com/go/storage">Google Cloud SDK</a> to provide a replica client
-for GCS which you can specify using the <code>gcs</code> replica type.</p>
+for Google Cloud Storage which you can specify using the <code>gs</code> replica type.</p>
 <p>The replica URL format looks like:</p>
-<pre><code>gcs://BUCKET/PATH
+<pre><code>gs://BUCKET/PATH
 </code></pre><p>While the configuration file usage looks like:</p>
 <div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="nt">dbs</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/path/to/local/db</span><span class="w">
 </span><span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">type</span><span class="p">:</span><span class="w">   </span><span class="l">gcs</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">type</span><span class="p">:</span><span class="w">   </span><span class="l">gs</span><span class="w">
 </span><span class="w">        </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="l">BUCKET</span><span class="w">
 </span><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w">   </span><span class="l">PATH</span><span class="w">
 </span></code></pre></div><p>You&rsquo;ll need to make sure the path to your service account key JSON file is set
 to the <code>GOOGLE_APPLICATION_CREDENTIALS</code> environment variable. You can find more
-details on our <a href="/guides/gcs"><em>Replicating to Google Cloud Storage guide</em></a>.</p>
+details on our <a href="/guides/gs"><em>Replicating to Google Cloud Storage guide</em></a>.</p>
 <h3 id="sftp">SFTP</h3>
 <p>If there&rsquo;s one thing we love it&rsquo;s old school technology. Tried &amp; true. SQLite is
 a perfect example!</p>

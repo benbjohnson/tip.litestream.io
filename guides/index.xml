@@ -93,10 +93,10 @@ On the &amp;ldquo;Create a Space&amp;rdquo; screen, you&amp;rsquo;ll need to cho
     
     <item>
       <title>Replicating to Google Cloud Storage</title>
-      <link>https://tip.litestream.io/guides/gcs/</link>
+      <link>https://tip.litestream.io/guides/gs/</link>
       <pubDate>Wed, 02 Jun 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://tip.litestream.io/guides/gcs/</guid>
+      <guid>https://tip.litestream.io/guides/gs/</guid>
       <description>This guide will show you how to use Litestream to replicate to a Google Cloud Storage bucket. You will need a Google Cloud account and to complete this guide.
 Setup Create a bucket In the GCP Console, use the top search bar to navigate to &amp;ldquo;Cloud Storage&amp;rdquo;. You may need to enable storage and billing if you have not previously set it up.
 Next, click the &amp;ldquo;Create Bucket&amp;rdquo; button. Enter a globally unique bucket name and click the &amp;ldquo;Create&amp;rdquo; button.</description>
