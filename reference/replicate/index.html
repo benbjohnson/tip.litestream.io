@@ -205,11 +205,13 @@ Litestream but is not recommended for production use.</p>
 -no-expand-env
     Disables environment variable expansion in configuration file.
 
--trace PATH
-    Write verbose trace logging to PATH.
-    This trace file can produce a lot of data
-    and is not recommended for production systems.
-</code></pre>
+-exec CMD
+    Executes a subcommand. Litestream will exit when the child
+    process exits. Useful for simple process management.
+</code></pre><p>When using the <code>-exec</code> flag, Litestream will pass the path of the first database
+in your configuration to the child process as the <code>LITESTREAM_DB_PATH</code>
+environment variable.</p>
+
 			<div class="docs-navigation d-flex justify-content-between">
 	
 	<a href="https://tip.litestream.io/reference/generations/">

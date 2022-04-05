@@ -186,7 +186,6 @@ Variable expansion By default, Litestream will perform environment variable expa
         <li><a href="#file-replica">File replica</a></li>
         <li><a href="#multiple-replicas">Multiple replicas</a></li>
         <li><a href="#retention-period">Retention period</a></li>
-        <li><a href="#validation-interval">Validation interval</a></li>
       </ul>
     </li>
   </ul>
@@ -270,12 +269,6 @@ used to reduce the time to restore since newer snapshots will have fewer WAL
 frames to apply. Retention still applies to these snapshots.</p>
 <p>If you do not set a snapshot interval then a new snapshot will be created
 whenever retention is performed. Retention occurs every 24 hours by default.</p>
-</li>
-<li>
-<p><code>validation-interval</code>—When specified, Litestream will automatically restore
-and validate that the data on the replica matches the local copy. Disabled by
-default. Enabling this will significantly increase the cost of running
-Litestream as S3 services charge for downloads.</p>
 </li>
 <li>
 <p><code>sync-interval</code>—Frequency in which frames are pushed to the replica. Defaults
@@ -372,19 +365,7 @@ be changed with the <code>retention-check-interval</code> field.</p>
         retention: 4h
 </code></pre><p>Duration values can be specified using second (<code>s</code>), minute (<code>m</code>), or hour (<code>h</code>)
 but days, weeks, &amp; years are not supported.</p>
-<h3 id="validation-interval">Validation interval<a href="#validation-interval" class="anchor" aria-hidden="true">#</a> </h3>
-<p>Because Litestream performs physical replication, the resulting database files
-restored from replicas will match byte-for-byte. Litestream has an option to
-periodically validate replicas by restoring them and comparing their checksum
-to the primary database&rsquo;s checksum.</p>
-<p><em>Please note that frequently restoring from S3 can be expensive.</em></p>
-<p>It can be enabled by setting the <code>validation-interval</code> field:</p>
-<pre><code>dbs:
-  - path: /var/lib/db
-    replicas:
-      - url: s3://mybkt.litestream.io/db
-        validation-interval: 6h
-</code></pre>
+
 			<div class="docs-navigation d-flex justify-content-between">
 	
 	<a class="ml-auto" href="https://tip.litestream.io/reference/databases/">
