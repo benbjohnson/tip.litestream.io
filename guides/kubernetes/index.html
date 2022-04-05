@@ -5,7 +5,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
-  <link rel="stylesheet" href="/main.3767892ca24c534b0073d9dc2e5bde6c178ec79d5d14c1ac8dd8b6f1c0385b1d70dafc086a1e0f74de32121bc3e1ab5d0ff39eef99b114e8ad8b11fdc5f2cd1b.css" integrity="sha512-N2eJLKJMU0sAc9ncLlvebBeOx51dFMGsjdi28cA4Wx1w2vwIah4PdN4yEhvD4atdD/Oe75mxFOitixH9xfLNGw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="/main.1cf992edc1f37b95c4ddf85b36862f715228199a718763a6aa21f686499e342a4f93190577c6c39e89fd604dfc6a4bfab3e42be269bf084761ad9009e06b5457.css" integrity="sha512-HPmS7cHze5XE3fhbNoYvcVIoGZpxh2OmqiH2hkmeNCpPkxkFd8bDnon9YE38akv6s&#43;Qr4mm/CEdhrZAJ4GtUVw==" crossorigin="anonymous">
 <noscript><style>img.lazyload { display: none; }</style></noscript>
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -139,6 +139,7 @@ It also assumes you have a replica destination (e.g. S3) for your Litestream dat
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gcs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
@@ -296,7 +297,7 @@ by running it in a Kubernetes <a href="https://kubernetes.io/docs/concepts/workl
 StatefulSet by setting the <code>spec.template.spec.initContainers</code> to:</p>
 <div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="nt">initContainers</span><span class="p">:</span><span class="w">
 </span><span class="w"></span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">init-litestream</span><span class="w">
-</span><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">litestream/litestream:0.3.5</span><span class="w">
+</span><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">litestream/litestream:0.3.8</span><span class="w">
 </span><span class="w">  </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;restore&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-if-db-not-exists&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-if-replica-exists&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-v&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/var/lib/myapp/db&#39;</span><span class="p">]</span><span class="w">
 </span><span class="w">  </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
@@ -346,7 +347,7 @@ above except this time we will be running the <code>litestream replicate</code> 
 <p>You can specify Litestream as the second container in the
 <code>spec.template.spec.containers</code> property on our StatefulSet:</p>
 <div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml">- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">litestream</span><span class="w">
-</span><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">litestream/litestream:0.3.5</span><span class="w">
+</span><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">litestream/litestream:0.3.8</span><span class="w">
 </span><span class="w">  </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;replicate&#39;</span><span class="p">]</span><span class="w">
 </span><span class="w">  </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">

@@ -5,7 +5,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
-  <link rel="stylesheet" href="/main.3767892ca24c534b0073d9dc2e5bde6c178ec79d5d14c1ac8dd8b6f1c0385b1d70dafc086a1e0f74de32121bc3e1ab5d0ff39eef99b114e8ad8b11fdc5f2cd1b.css" integrity="sha512-N2eJLKJMU0sAc9ncLlvebBeOx51dFMGsjdi28cA4Wx1w2vwIah4PdN4yEhvD4atdD/Oe75mxFOitixH9xfLNGw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="/main.1cf992edc1f37b95c4ddf85b36862f715228199a718763a6aa21f686499e342a4f93190577c6c39e89fd604dfc6a4bfab3e42be269bf084761ad9009e06b5457.css" integrity="sha512-HPmS7cHze5XE3fhbNoYvcVIoGZpxh2OmqiH2hkmeNCpPkxkFd8bDnon9YE38akv6s&#43;Qr4mm/CEdhrZAJ4GtUVw==" crossorigin="anonymous">
 <noscript><style>img.lazyload { display: none; }</style></noscript>
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -21,7 +21,7 @@
 <meta name="twitter:image" content="https://litestream.io/images/twitter-image.png">
 <meta name="twitter:title" content="Running in a Docker container">
 <meta name="twitter:description" content="This guide will show you how to run Litestream within a Docker container either as a sidecar or within the same container as your application. You will need a Docker installed on your machine for this guide.
-Overview Docker is a common tool for deploying applications and Litestream can be easily integrated into your workflow. Docker typically recommends running one application per container and Litestream can be run as a sidecar to another container.">
+❗️ The host and container must use the same OS. For example, running SQLite on macOS and running Litestream on Linux will not work as they use different locking mechanisms.  Overview Docker is a common tool for deploying applications and Litestream can be easily integrated into your workflow.">
 <meta name="twitter:site" content="@litestreamio">
 <meta name="twitter:creator" content="@benbjohnson">
 
@@ -139,6 +139,7 @@ Overview Docker is a common tool for deploying applications and Litestream can b
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gcs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
@@ -186,6 +187,10 @@ Overview Docker is a common tool for deploying applications and Litestream can b
 			<p>This guide will show you how to run Litestream within a Docker container either
 as a sidecar or within the same container as your application. You will need a
 <a href="https://www.docker.com/">Docker</a> installed on your machine for this guide.</p>
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="flex-shrink-1 alert-icon">❗️</div>
+  <div class="w-100">The host and container must use the same OS. For example, running SQLite on macOS and running Litestream on Linux will not work as they use different locking mechanisms.</div>
+</div>
 <h2 id="overview">Overview<a href="#overview" class="anchor" aria-hidden="true">#</a> </h2>
 <p>Docker is a common tool for deploying applications and Litestream can be easily
 integrated into your workflow. Docker typically recommends running one

@@ -5,7 +5,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
-  <link rel="stylesheet" href="/main.3767892ca24c534b0073d9dc2e5bde6c178ec79d5d14c1ac8dd8b6f1c0385b1d70dafc086a1e0f74de32121bc3e1ab5d0ff39eef99b114e8ad8b11fdc5f2cd1b.css" integrity="sha512-N2eJLKJMU0sAc9ncLlvebBeOx51dFMGsjdi28cA4Wx1w2vwIah4PdN4yEhvD4atdD/Oe75mxFOitixH9xfLNGw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="/main.1cf992edc1f37b95c4ddf85b36862f715228199a718763a6aa21f686499e342a4f93190577c6c39e89fd604dfc6a4bfab3e42be269bf084761ad9009e06b5457.css" integrity="sha512-HPmS7cHze5XE3fhbNoYvcVIoGZpxh2OmqiH2hkmeNCpPkxkFd8bDnon9YE38akv6s&#43;Qr4mm/CEdhrZAJ4GtUVw==" crossorigin="anonymous">
 <noscript><style>img.lazyload { display: none; }</style></noscript>
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -133,6 +133,7 @@
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gcs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
@@ -203,13 +204,13 @@ gets us up and running quickly but it will only persist the data for as long as
 the Docker container is running. That&rsquo;s good enough for this tutorial but you&rsquo;ll
 want to use persistent storage in a production environment.</p>
 <p>First, start your MinIO instance:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -p 9000:9000 minio/minio server /data
-</code></pre></div><p>Then open a web browser to <a href="http://localhost:9000/" target="_blank">http://localhost:9000/</a>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address <span class="s2">&#34;:9001&#34;</span>
+</code></pre></div><p>Then open a web browser to <a href="http://localhost:9001/" target="_blank">http://localhost:9001/</a>
 and enter the default credentials:</p>
 <pre><code>Username: minioadmin
 Password: minioadmin
-</code></pre><p>Next, click the &ldquo;+&rdquo; button in the lower right-hand corner and then click the
-<em>&ldquo;Create Bucket&rdquo;</em> icon. Name your bucket, <code>&quot;mybkt&quot;</code>.</p>
+</code></pre><p>Next, navigate to &ldquo;Buckets&rdquo;, click the &ldquo;Create Bucket&rdquo; button in the top right corner and then click the
+<em>&ldquo;Save&rdquo;</em> icon. Name your bucket, <code>&quot;mybkt&quot;</code>.</p>
 <h2 id="setting-up-your-database">Setting up your database<a href="#setting-up-your-database" class="anchor" aria-hidden="true">#</a> </h2>
 <p>Now that our MinIO bucket is created, we can replicate data to it. Litestream
 can work with any SQLite database so we&rsquo;ll use the <code>sqlite3</code> command line tool

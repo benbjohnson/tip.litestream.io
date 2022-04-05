@@ -5,7 +5,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
-  <link rel="stylesheet" href="/main.3767892ca24c534b0073d9dc2e5bde6c178ec79d5d14c1ac8dd8b6f1c0385b1d70dafc086a1e0f74de32121bc3e1ab5d0ff39eef99b114e8ad8b11fdc5f2cd1b.css" integrity="sha512-N2eJLKJMU0sAc9ncLlvebBeOx51dFMGsjdi28cA4Wx1w2vwIah4PdN4yEhvD4atdD/Oe75mxFOitixH9xfLNGw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="/main.1cf992edc1f37b95c4ddf85b36862f715228199a718763a6aa21f686499e342a4f93190577c6c39e89fd604dfc6a4bfab3e42be269bf084761ad9009e06b5457.css" integrity="sha512-HPmS7cHze5XE3fhbNoYvcVIoGZpxh2OmqiH2hkmeNCpPkxkFd8bDnon9YE38akv6s&#43;Qr4mm/CEdhrZAJ4GtUVw==" crossorigin="anonymous">
 <noscript><style>img.lazyload { display: none; }</style></noscript>
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -134,6 +134,7 @@ Busy timeout SQLite is built to run as a multi-process embedded database and Lit
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gcs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
@@ -167,6 +168,9 @@ Busy timeout SQLite is built to run as a multi-process embedded database and Lit
     <li><a href="#deleting-sqlite-databases">Deleting SQLite databases</a></li>
     <li><a href="#synchronous-pragma">Synchronous PRAGMA</a></li>
     <li><a href="#data-loss-window">Data loss window</a></li>
+    <li><a href="#increase-snapshots-frequency-to-improve-restore-performance">Increase snapshots frequency to improve restore performance</a></li>
+    <li><a href="#disable-autocheckpoints-for-high-write-load-servers">Disable autocheckpoints for high write load servers</a></li>
+    <li><a href="#multiple-applications-replicating-into-location-can-corrupt">Multiple applications replicating into location can corrupt</a></li>
   </ul>
 </nav>
   </div>
@@ -222,15 +226,54 @@ replicated out-of-band from the transaction that wrote the changes. This is how
 many replication tools work including <a href="https://www.postgresql.org/docs/9.3/warm-standby.html">PostgreSQL&rsquo;s log-shipping
 replication</a>. Asynchronous replication is typically much faster than
 synchronous replication but it trades off durability of recent writes.</p>
-<p>By default, Litestream will replicate new changes to an S3 replica every 10
-seconds. This can be reasonably configured down to 1 second with the
-<a href="http://localhost:1313/reference/config/#s3-replica"><code>sync-timeout</code></a> configuration setting. During this time where data
-has not yet been replicated, a catastrophic crash on your server will result in
-the loss of data in that time window.</p>
+<p>By default, Litestream will replicate new changes to an S3 replica every
+second. During this time where data has not yet been replicated, a catastrophic
+crash on your server will result in the loss of data in that time window.</p>
 <p>For more typical shutdown scenarios, when Litestream receives a signal to close,
 it will attempt to synchronize all outstanding WAL changes to the S3 replica before terminating.</p>
 <p>Synchronous replication is on the Litestream roadmap but has not yet been
 implemented.</p>
+<h2 id="increase-snapshots-frequency-to-improve-restore-performance">Increase snapshots frequency to improve restore performance<a href="#increase-snapshots-frequency-to-improve-restore-performance" class="anchor" aria-hidden="true">#</a> </h2>
+<p>By default, the <code>snapshot-interval</code> on a replica is unset so a new snapshot is
+taken when the previous snapshot is removed because of retention. For example,
+if your retention policy is the default setting of <code>24h</code> then a new snapshot
+will be taken once per day.</p>
+<p>However, if you&rsquo;re writing data often then WAL files will build up over that
+time period and increase your restore time. If you have frequent writes then it
+is recommended to either decrease your <code>retention</code> period or to set the
+<code>snapshot-interval</code> to something lower such as <code>1h</code>.</p>
+<p>For example, if your <code>retention</code> period is one day and your <code>snapshot-interval</code>
+is one hour then you will see a rolling set of 24 snapshots for your replica.</p>
+<h2 id="disable-autocheckpoints-for-high-write-load-servers">Disable autocheckpoints for high write load servers<a href="#disable-autocheckpoints-for-high-write-load-servers" class="anchor" aria-hidden="true">#</a> </h2>
+<p>By default, SQLite allows any process to perform a checkpoint. A checkpoint is
+when pages that are written to the WAL are copied back to the main database
+file. Litestream works by controlling this checkpointing process and
+replicating the pages before they get copied back into the main database.
+Litestream prevents other processes from checkpointing by maintaining a read
+lock on the database in between its checkpoint requests.</p>
+<p>However, under high load with many small write transactions (e.g. tens of
+thousands per second), the application&rsquo;s SQLite instance can perform a
+checkpoint in between Litestream-initiated checkpoints and cause Litestream
+to miss a WAL file.</p>
+<p>To prevent this, it is recommended to run your application with
+autocheckpointing disabled. To do this, run the following PRAGMA when you
+open your SQLite connection:</p>
+<pre><code>PRAGMA wal_autocheckpoint = 0;
+</code></pre><h2 id="multiple-applications-replicating-into-location-can-corrupt">Multiple applications replicating into location can corrupt<a href="#multiple-applications-replicating-into-location-can-corrupt" class="anchor" aria-hidden="true">#</a> </h2>
+<p>Multiple applications replicating into the same bucket can cause situations
+where you will be unable to restore. It is <em>your</em> responsibility to ensure you
+do not have multiple applications replicating concurrently. In the off-chance
+that it does happen, and you&rsquo;re unable to restore, you may see an error along
+the lines of:</p>
+<pre><code>cannot find max wal index for restore: missing initial wal segment: generation=f6d6d1e96d38dafb index=00000093 offset=4152
+</code></pre><p>In this case, manually copy your most recent snapshot in
+<code>generations/&lt;id&gt;/snapshots/&lt;snapshot&gt;.lz4</code> and decompress with <code>lz4</code>.</p>
+<p>It&rsquo;s a good idea to perform an integrity check on the database using <code>sqlite3</code>:</p>
+<pre><code>$ sqlite3 /path/to/db
+sqlite&gt; PRAGMA integrity_check;
+ok
+</code></pre><p>You now use this snapshot file as your application&rsquo;s database file and continue
+replicating it again with Litestream.</p>
 
 			<div class="docs-navigation d-flex justify-content-between">
 	

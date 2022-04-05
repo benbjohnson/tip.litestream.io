@@ -14,15 +14,15 @@
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-  <title>Build from Source - Litestream</title>
+  <title>Replicating to Scaleway Object Storage - Litestream</title>
 <meta name="description" content="Litestream replicates SQLite databases in real-time to S3.">
-<link rel="canonical" href="https://tip.litestream.io/install/source/">
+<link rel="canonical" href="https://tip.litestream.io/guides/scaleway/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://litestream.io/images/twitter-image.png">
-<meta name="twitter:title" content="Build from Source">
-<meta name="twitter:description" content="Installation Most users should follow the steps above to install prebuilt binaries but you can also install from source if a binary is not provided for your operating system or architecture. First, install the Go toolchain.
-Next, download the source code and run the following command:
-go install ./cmd/litestream This will install litestream into your $GOPATH/bin directory.">
+<meta name="twitter:title" content="Replicating to Scaleway Object Storage">
+<meta name="twitter:description" content="This guide will show you how to use Scaleway Object Storage as a database replica path for Litestream. You will need a Scaleway account to complete this guide.
+Setup Create a bucket In the Scaleway Console, click on the green &ldquo;Create&rdquo; button in the top navigation and choose &ldquo;Object Storage Bucket&rdquo;.
+On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a region and name your space a globally unique name.">
 <meta name="twitter:site" content="@litestreamio">
 <meta name="twitter:creator" content="@benbjohnson">
 
@@ -41,13 +41,13 @@ go install ./cmd/litestream This will install litestream into your $GOPATH/bin d
     },{
         "@type": "ListItem",
         "position":  2 ,
-        "name": "Install",
-        "item": "https:\/\/tip.litestream.io\/install\/"
+        "name": "Guides",
+        "item": "https:\/\/tip.litestream.io\/guides\/"
     },{
         "@type": "ListItem",
         "position":  3 ,
-        "name": "Source",
-        "item": "https:\/\/tip.litestream.io\/install\/source\/"
+        "name": "Scaleway",
+        "item": "https:\/\/tip.litestream.io\/guides\/scaleway\/"
     }]
 }
 </script>
@@ -59,7 +59,7 @@ go install ./cmd/litestream This will install litestream into your $GOPATH/bin d
 <link rel="manifest" href="https://tip.litestream.io/site.webmanifest">
   
 </head>
-  <body class="install single">
+  <body class="guides single">
     <header class="navbar fixed-top navbar-expand-md navbar-light">
   <div class="container align-items-baseline">
     <input class="menu-btn order-0" type="checkbox" id="menu-btn">
@@ -115,7 +115,7 @@ go install ./cmd/litestream This will install litestream into your $GOPATH/bin d
   <ul class="list-unstyled">
     <li><a class="docs-link" href="https://tip.litestream.io/install/mac/">macOS</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/install/debian/">Linux (Debian)</a></li>
-    <li><a class="docs-link active" href="https://tip.litestream.io/install/source/">Build from Source</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/install/source/">Build from Source</a></li>
     </ul>
   <h3>
     <a href="https://tip.litestream.io/getting-started/">Getting Started</a>
@@ -140,7 +140,7 @@ go install ./cmd/litestream This will install litestream into your $GOPATH/bin d
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
-    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
+    <li><a class="docs-link active" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gcs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
@@ -169,30 +169,79 @@ go install ./cmd/litestream This will install litestream into your $GOPATH/bin d
     <h3>On this page</h3>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#installation">Installation</a></li>
+    <li><a href="#setup">Setup</a>
+      <ul>
+        <li><a href="#create-a-bucket">Create a bucket</a></li>
+        <li><a href="#create-a-key">Create a key</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a>
+      <ul>
+        <li><a href="#configuration-file-usage">Configuration file usage</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
   </div>
 
 		</nav>
 		<main class="docs-content col-lg-11 col-xl-9 mx-xl-auto">
-		<h1>Build from Source</h1>
+		<h1>Replicating to Scaleway Object Storage</h1>
 			<p class="lead"></p>
-			<h2 id="installation">Installation<a href="#installation" class="anchor" aria-hidden="true">#</a> </h2>
-<p>Most users should follow the steps above to install prebuilt binaries but you
-can also install from source if a binary is not provided for your operating
-system or architecture. First, <a href="https://golang.org/dl/">install the Go toolchain</a>.</p>
-<p>Next, download the <a href="https://github.com/benbjohnson/litestream">source code</a> and
-run the following command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">go install ./cmd/litestream
-</code></pre></div><p>This will install <code>litestream</code> into your <code>$GOPATH/bin</code> directory.</p>
-
+			<p>This guide will show you how to use <a href="https://www.scaleway.com/en/object-storage/">Scaleway Object Storage</a> as a database
+replica path for Litestream. You will need a <a href="https://www.scaleway.com/">Scaleway</a> account to
+complete this guide.</p>
+<h2 id="setup">Setup<a href="#setup" class="anchor" aria-hidden="true">#</a> </h2>
+<h3 id="create-a-bucket">Create a bucket<a href="#create-a-bucket" class="anchor" aria-hidden="true">#</a> </h3>
+<p>In the <a href="https://console.scaleway.com/">Scaleway Console</a>, click on the green <em>&ldquo;Create&rdquo;</em> button
+in the top navigation and choose <em>&ldquo;Object Storage Bucket&rdquo;</em>.</p>
+<p>On the <em>&ldquo;Create a bucket&rdquo;</em> screen, you&rsquo;ll need to choose a region and name your
+space a globally unique name. Then click the <em>&ldquo;Create a bucket&rdquo;</em> button at the
+bottom of the screen.</p>
+<figure>
+	<img src="scw-create-bucket.png" alt="Screenshot of Scaleway create bucket UI">
+</figure>
+<p>After your bucket is created, you&rsquo;ll see the hostname of your bucket in the format <code>&lt;bucket-name&gt;.s3.&lt;region&gt;.scw.cloud</code>. You will need the bucket name, the region and the regional endpoint (<code>s3.&lt;region&gt;.scw.cloud</code>) for use later when configuring Litestream.</p>
+<figure>
+    <img src="scw-bucket.png" alt="Screenshot of Scaleway bucket settings UI">
+</figure>
+<h3 id="create-a-key">Create a key<a href="#create-a-key" class="anchor" aria-hidden="true">#</a> </h3>
+<p>You&rsquo;ll need to create a key to authenticate Litestream to your account so it can
+access the bucket. In the console, click <em>&ldquo;Project Dashboard in the sidebar&rdquo;</em>. Then click on the <em>&ldquo;Credentials&rdquo;</em> tab.</p>
+<p>Scroll down to the <em>API keys</em> section and click the <em>&ldquo;Generate new
+API Key&rdquo;</em> button. You&rsquo;ll need to provide a name for key and then hit Enter. You&rsquo;ll
+be presented with the access key id and secret access key. <strong>You will need to
+copy those for use later.</strong></p>
+<figure>
+    <img src="scw-keys.png" alt="Screenshot of Scaleway key creation">
+</figure>
+<h2 id="usage">Usage<a href="#usage" class="anchor" aria-hidden="true">#</a> </h2>
+<h3 id="configuration-file-usage">Configuration file usage<a href="#configuration-file-usage" class="anchor" aria-hidden="true">#</a> </h3>
+<p>Here is an example <code>litestream.yml</code> configuration file. Make sure to specifi the <code>region</code> and <code>endpoint</code> values.</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">dbs</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/path/to/local/db</span><span class="w">
+</span><span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">s3</span><span class="w">
+</span><span class="w">        </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;bucket-name&gt;</span><span class="w">
+</span><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">db</span><span class="w">
+</span><span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l">s3.&lt;region&gt;.scw.cloud</span><span class="w"> </span><span class="c"># e.g. s3.fr-par.scw.cloud</span><span class="w">
+</span><span class="w">        </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;region&gt;</span><span class="w"> </span><span class="c"># e.g. fr-par</span><span class="w">
+</span><span class="w">        </span><span class="nt">access-key-id</span><span class="p">:</span><span class="w"> </span><span class="l">SCWXXXXXXXXXXXXXXXXX</span><span class="w">
+</span><span class="w">        </span><span class="nt">secret-access-key</span><span class="p">:</span><span class="w"> </span><span class="l">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</span><span class="w">
+</span></code></pre></div>
 			<div class="docs-navigation d-flex justify-content-between">
 	
-	<a href="https://tip.litestream.io/install/debian/">
+	<a href="https://tip.litestream.io/guides/backblaze/">
 			<div class="card my-1">
 				<div class="card-body py-2">
-					&larr; Linux (Debian)
+					&larr; Replicating to Backblaze B2
+				</div>
+			</div>
+		</a>
+	<a class="ml-auto" href="https://tip.litestream.io/guides/digitalocean/">
+			<div class="card my-1">
+				<div class="card-body py-2">
+					Replicating to DigitalOcean Spaces &rarr;
 				</div>
 			</div>
 		</a>
