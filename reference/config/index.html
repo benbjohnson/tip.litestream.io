@@ -21,7 +21,7 @@
 <meta name="twitter:image" content="https://litestream.io/images/twitter-image.png">
 <meta name="twitter:title" content="Configuration File">
 <meta name="twitter:description" content="The YAML configuration file provides a way to list databases and replicas that Litestream should manage. In addition, there are global variables that can be applied to all replicas.
-The default path for the configuration file is /etc/litestream.yml.
+If the -config flag is not specified, Litestream will attempt to read litestream.yml from the current directory and then fallback to using /etc/litestream.yml.
 Variable expansion By default, Litestream will perform environment variable expansion within the config file before reading it. Any references to $VAR or ${VAR} formatted variables will be replaced with their environment variable values.">
 <meta name="twitter:site" content="@litestreamio">
 <meta name="twitter:creator" content="@benbjohnson">
@@ -199,7 +199,9 @@ Variable expansion By default, Litestream will perform environment variable expa
 			<p>The YAML configuration file provides a way to list databases and replicas that
 Litestream should manage. In addition, there are global variables that can be
 applied to all replicas.</p>
-<p>The default path for the configuration file is <code>/etc/litestream.yml</code>.</p>
+<p>If the <code>-config</code> flag is not specified, Litestream will attempt to read
+<code>litestream.yml</code> from the current directory and then fallback to using
+<code>/etc/litestream.yml</code>.</p>
 <h3 id="variable-expansion">Variable expansion<a href="#variable-expansion" class="anchor" aria-hidden="true">#</a> </h3>
 <p>By default, Litestream will perform environment variable expansion within the
 config file before reading it. Any references to <code>$VAR</code> or <code>${VAR}</code> formatted
