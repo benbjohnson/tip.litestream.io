@@ -14,15 +14,13 @@
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-  <title>Replicating to Scaleway Object Storage - Litestream</title>
+  <title>Live Read Replication - Litestream</title>
 <meta name="description" content="Litestream replicates SQLite databases in real-time to S3.">
-<link rel="canonical" href="https://tip.litestream.io/guides/scaleway/">
+<link rel="canonical" href="https://tip.litestream.io/guides/read-replica/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://litestream.io/images/twitter-image.png">
-<meta name="twitter:title" content="Replicating to Scaleway Object Storage">
-<meta name="twitter:description" content="This guide will show you how to use Scaleway Object Storage as a database replica path for Litestream. You will need a Scaleway account to complete this guide.
-Setup Create a bucket In the Scaleway Console, click on the green &ldquo;Create&rdquo; button in the top navigation and choose &ldquo;Object Storage Bucket&rdquo;.
-On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a region and name your space a globally unique name.">
+<meta name="twitter:title" content="Live Read Replication">
+<meta name="twitter:description" content="Litestream replicates SQLite databases in real-time to S3.">
 <meta name="twitter:site" content="@litestreamio">
 <meta name="twitter:creator" content="@benbjohnson">
 
@@ -46,8 +44,8 @@ On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a regio
     },{
         "@type": "ListItem",
         "position":  3 ,
-        "name": "Scaleway",
-        "item": "https:\/\/tip.litestream.io\/guides\/scaleway\/"
+        "name": "Read Replica",
+        "item": "https:\/\/tip.litestream.io\/guides\/read-replica\/"
     }]
 }
 </script>
@@ -59,7 +57,7 @@ On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a regio
 <link rel="manifest" href="https://tip.litestream.io/site.webmanifest">
   
 </head>
-  <body class="guides single">
+  <body class="guides list">
     <header class="navbar fixed-top navbar-expand-md navbar-light">
   <div class="container align-items-baseline">
     <input class="menu-btn order-0" type="checkbox" id="menu-btn">
@@ -139,10 +137,10 @@ On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a regio
     <li><a class="docs-link" href="https://tip.litestream.io/guides/azure/">Replicating to Azure Blob Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/backblaze/">Replicating to Backblaze B2</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/digitalocean/">Replicating to DigitalOcean Spaces</a></li>
-    <li><a class="docs-link active" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
+    <li><a class="docs-link" href="https://tip.litestream.io/guides/scaleway/">Replicating to Scaleway Object Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/gs/">Replicating to Google Cloud Storage</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/linode/">Replicating to Linode Object Storage</a></li>
-    <li><a class="docs-link" href="https://tip.litestream.io/guides/read-replica/">Live Read Replication</a></li>
+    <li><a class="docs-link active" href="https://tip.litestream.io/guides/read-replica/">Live Read Replication</a></li>
     <li><a class="docs-link" href="https://tip.litestream.io/guides/sftp/">Replicating to an SFTP Server</a></li>
     </ul>
   <h3>
@@ -169,15 +167,17 @@ On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a regio
     <h3>On this page</h3>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#setup">Setup</a>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#configuration">Configuration</a>
       <ul>
-        <li><a href="#create-a-bucket">Create a bucket</a></li>
-        <li><a href="#create-a-key">Create a key</a></li>
+        <li><a href="#configuring-the-primary">Configuring the primary</a></li>
+        <li><a href="#configuring-the-replicas">Configuring the replicas</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a>
+    <li><a href="#application-changes">Application changes</a>
       <ul>
-        <li><a href="#configuration-file-usage">Configuration file usage</a></li>
+        <li><a href="#ensuring-replicas-are-read-only">Ensuring replicas are read-only</a></li>
+        <li><a href="#redirect-writes-to-the-primary">Redirect writes to the primary</a></li>
       </ul>
     </li>
   </ul>
@@ -186,67 +186,67 @@ On the &ldquo;Create a bucket&rdquo; screen, you&rsquo;ll need to choose a regio
 
 		</nav>
 		<main class="docs-content col-lg-11 col-xl-9 mx-xl-auto">
-		<h1>Replicating to Scaleway Object Storage</h1>
+		<h1>Live Read Replication</h1>
 			<p class="lead"></p>
-			<p>This guide will show you how to use <a href="https://www.scaleway.com/en/object-storage/">Scaleway Object Storage</a> as a database
-replica path for Litestream. You will need a <a href="https://www.scaleway.com/">Scaleway</a> account to
-complete this guide.</p>
-<h2 id="setup">Setup<a href="#setup" class="anchor" aria-hidden="true">#</a> </h2>
-<h3 id="create-a-bucket">Create a bucket<a href="#create-a-bucket" class="anchor" aria-hidden="true">#</a> </h3>
-<p>In the <a href="https://console.scaleway.com/">Scaleway Console</a>, click on the green <em>&ldquo;Create&rdquo;</em> button
-in the top navigation and choose <em>&ldquo;Object Storage Bucket&rdquo;</em>.</p>
-<p>On the <em>&ldquo;Create a bucket&rdquo;</em> screen, you&rsquo;ll need to choose a region and name your
-space a globally unique name. Then click the <em>&ldquo;Create a bucket&rdquo;</em> button at the
-bottom of the screen.</p>
-<figure>
-	<img src="scw-create-bucket.png" alt="Screenshot of Scaleway create bucket UI">
-</figure>
-<p>After your bucket is created, you&rsquo;ll see the hostname of your bucket in the format <code>&lt;bucket-name&gt;.s3.&lt;region&gt;.scw.cloud</code>. You will need the bucket name, the region and the regional endpoint (<code>s3.&lt;region&gt;.scw.cloud</code>) for use later when configuring Litestream.</p>
-<figure>
-    <img src="scw-bucket.png" alt="Screenshot of Scaleway bucket settings UI">
-</figure>
-<h3 id="create-a-key">Create a key<a href="#create-a-key" class="anchor" aria-hidden="true">#</a> </h3>
-<p>You&rsquo;ll need to create a key to authenticate Litestream to your account so it can
-access the bucket. In the console, click <em>&ldquo;Project Dashboard in the sidebar&rdquo;</em>. Then click on the <em>&ldquo;Credentials&rdquo;</em> tab.</p>
-<p>Scroll down to the <em>API keys</em> section and click the <em>&ldquo;Generate new
-API Key&rdquo;</em> button. You&rsquo;ll need to provide a name for key and then hit Enter. You&rsquo;ll
-be presented with the access key id and secret access key. <strong>You will need to
-copy those for use later.</strong></p>
-<figure>
-    <img src="scw-keys.png" alt="Screenshot of Scaleway key creation">
-</figure>
-<h2 id="usage">Usage<a href="#usage" class="anchor" aria-hidden="true">#</a> </h2>
-<h3 id="configuration-file-usage">Configuration file usage<a href="#configuration-file-usage" class="anchor" aria-hidden="true">#</a> </h3>
-<p>Here is an example <code>litestream.yml</code> configuration file. Make sure to specifi the <code>region</code> and <code>endpoint</code> values.</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">dbs</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/path/to/local/db</span><span class="w">
-</span><span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">s3</span><span class="w">
-</span><span class="w">        </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;bucket-name&gt;</span><span class="w">
-</span><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">db</span><span class="w">
-</span><span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l">s3.&lt;region&gt;.scw.cloud</span><span class="w"> </span><span class="c"># e.g. s3.fr-par.scw.cloud</span><span class="w">
-</span><span class="w">        </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;region&gt;</span><span class="w"> </span><span class="c"># e.g. fr-par</span><span class="w">
-</span><span class="w">        </span><span class="nt">access-key-id</span><span class="p">:</span><span class="w"> </span><span class="l">SCWXXXXXXXXXXXXXXXXX</span><span class="w">
-</span><span class="w">        </span><span class="nt">secret-access-key</span><span class="p">:</span><span class="w"> </span><span class="l">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</span><span class="w">
-</span></code></pre></div>
-			<div class="docs-navigation d-flex justify-content-between">
-	
-	<a href="https://tip.litestream.io/guides/backblaze/">
-			<div class="card my-1">
-				<div class="card-body py-2">
-					&larr; Replicating to Backblaze B2
-				</div>
-			</div>
-		</a>
-	<a class="ml-auto" href="https://tip.litestream.io/guides/digitalocean/">
-			<div class="card my-1">
-				<div class="card-body py-2">
-					Replicating to DigitalOcean Spaces &rarr;
-				</div>
-			</div>
-		</a>
-	</div>
+			<p>This guide will show you how to run Litestream with a primary server that
+replicates to read-only replicas in real-time.</p>
+<div class="alert alert-warning d-flex" role="alert">
+  <div class="flex-shrink-1 alert-icon">❗️</div>
+  <div class="w-100">This feature is currently in beta</div>
+</div>
+<h2 id="overview">Overview<a href="#overview" class="anchor" aria-hidden="true">#</a> </h2>
+<p>The live read replication feature of Litestream allows a user to make changes
+to a single, primary database and have those changes made available to stream
+to one or more read-only replicas. These replicas will pull the change, apply
+it to their local copy of the database in a transactionally-safe manner, and
+make that data available to the replica&rsquo;s application immediately.</p>
+<p>This feature provides the ability to scale SQLite read queries across many
+servers as well as provide geographic replication to improve network latency.</p>
+<h2 id="configuration">Configuration<a href="#configuration" class="anchor" aria-hidden="true">#</a> </h2>
+<h3 id="configuring-the-primary">Configuring the primary<a href="#configuring-the-primary" class="anchor" aria-hidden="true">#</a> </h3>
+<p>To enable replication on the primary server, simply enable the HTTP server by
+setting the <code>addr</code> flag in the configuration file:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="nt">addr</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;:9090&#34;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">dbs</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/data/db</span><span class="w">
+</span></code></pre></div><h3 id="configuring-the-replicas">Configuring the replicas<a href="#configuring-the-replicas" class="anchor" aria-hidden="true">#</a> </h3>
+<p>On each of the replica servers, you&rsquo;ll need to set the <code>upstream</code> property of
+each database that will be replicated:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="nt">addr</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;:9090&#34;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">dbs</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/data/db</span><span class="w">
+</span><span class="w">    </span><span class="nt">upstream</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">http://$PRIMARY_HOSTNAME:9090</span><span class="w">
+</span></code></pre></div><p>If the path of the replica&rsquo;s database is different than the primary&rsquo;s database
+then you can specify <code>upstream.path</code> as the primary&rsquo;s database path.</p>
+<h2 id="application-changes">Application changes<a href="#application-changes" class="anchor" aria-hidden="true">#</a> </h2>
+<h3 id="ensuring-replicas-are-read-only">Ensuring replicas are read-only<a href="#ensuring-replicas-are-read-only" class="anchor" aria-hidden="true">#</a> </h3>
+<p>Read replication uses physical replication so it simply copies database pages
+from one database to another. However, only the primary node is allowed to write
+to the database. Writing to the replicas will corrupt their copy of the database.</p>
+<p>Because Litestream cannot control whether your application writes to the
+database, it is your responsibility to only perform reads (i.e. <code>SELECT</code>). It
+is recommended that you set SQLite in a read-only mode to ensure that it does
+not change. You can do this by passing the URL-style parameter to SQLite in
+most driver implementations:</p>
+<pre><code>/path/to/db?mode=ro
+</code></pre><p>If you are using the SQLite API directly, you can pass the <code>SQLITE_OPEN_READONLY</code>
+flag to <a href="https://www.sqlite.org/c3ref/open.html"><code>sqlite3_open_v2()</code></a>.</p>
+<p>If you are using the SQLite CLI, you can pass the <code>-readonly</code> flag:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ sqlite3 -readonly /path/to/db
+</code></pre></div><h3 id="redirect-writes-to-the-primary">Redirect writes to the primary<a href="#redirect-writes-to-the-primary" class="anchor" aria-hidden="true">#</a> </h3>
+<p>Since replicas are read-only, it is the responsibility of the application
+developer to redirect writes to the primary node. The exact implementation of
+this depends on your deployment.</p>
+<p>Some hosting providers provide a means to redirect requests. For example,
+<a href="fly.io">fly.io</a> provides a <a href="https://fly.io/docs/getting-started/multi-region-databases/#replay-the-request"><code>fly-replay</code></a>
+header to automatically replay a request to a different node. Your load
+balancer may provide a similar mechanism. If not, you can also have your
+application proxy the request to the primary server.</p>
 
+			
 		</main>
 	</div>
 
