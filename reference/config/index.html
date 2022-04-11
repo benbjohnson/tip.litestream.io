@@ -180,7 +180,11 @@ Variable expansion By default, Litestream will perform environment variable expa
         <li><a href="#metrics">Metrics</a></li>
       </ul>
     </li>
-    <li><a href="#database-settings">Database settings</a></li>
+    <li><a href="#database-settings">Database settings</a>
+      <ul>
+        <li><a href="#upstream-settings">Upstream settings</a></li>
+      </ul>
+    </li>
     <li><a href="#replica-settings">Replica settings</a>
       <ul>
         <li><a href="#s3-replica">S3 replica</a></li>
@@ -230,7 +234,8 @@ address in the config:</p>
 <p>Litestream can monitor one or more database files that are specified in the
 configuration file. Database files are also referenced in <code>litestream</code> commands
 by their absolute path.</p>
-<p>Each database accepts two options—its path and a list of replicas:</p>
+<p>The <code>path</code> field is required for the database and typically you&rsquo;ll have one or
+more replicas listed under the <code>replicas</code> field.</p>
 <div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">dbs</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/var/lib/db1</span><span class="w">
 </span><span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w">
@@ -240,7 +245,49 @@ by their absolute path.</p>
 </span><span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w">
 </span><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/backup/db2</span><span class="w">
 </span><span class="w">      </span>- <span class="nt">url</span><span class="p">:</span><span class="w">  </span><span class="l">s3://mybkt.litestream.io/db2</span><span class="w">
-</span></code></pre></div><h2 id="replica-settings">Replica settings<a href="#replica-settings" class="anchor" aria-hidden="true">#</a> </h2>
+</span></code></pre></div><p>The database also supports the following settings:</p>
+<ul>
+<li>
+<p><code>upstream</code>—specifies the primary Litestream instance when using live read
+replication. See the following section for details.</p>
+</li>
+<li>
+<p><code>monitor-delay-interval</code>—specifies the amount of time to wait after a database
+change before writing to the shadow WAL. This setting allows batching of
+multiple transactions into a single WAL segment file. Defaults to <code>10ms</code>.</p>
+</li>
+<li>
+<p><code>checkpoint-interval</code>—specifies the interval at which to checkpoint the WAL
+and start a new WAL index. This determines the granularity at which you can
+perform point-in-time recovery. Defaults to <code>1m</code>.</p>
+</li>
+<li>
+<p><code>min-checkpoint-page-count</code>—the minimum number of WAL pages before Litestream
+will perform a <code>PASSIVE</code> checkpoint. Defaults to <code>1000</code>.</p>
+</li>
+<li>
+<p><code>max-checkpoint-page-count</code>—the maximum number of WAL pages before Litestream
+will perform a <code>RESTART</code> checkpoint. Defaults to <code>10000</code>.</p>
+</li>
+<li>
+<p><code>shadow-retention-count</code>—the number of WAL indexes to retain in the shadow
+WAL. This is used to retain WAL files on the primary so that read replicas
+have time to read them. Defaults to <code>32</code>.</p>
+</li>
+</ul>
+<h3 id="upstream-settings">Upstream settings<a href="#upstream-settings" class="anchor" aria-hidden="true">#</a> </h3>
+<p>The <code>upstream</code> field for the database enables read replication from another
+Litestream instance that acts as the primary. The primary must have the HTTP
+server enabled by setting the <code>addr</code> config property.</p>
+<p>Typically, you only need to specify the <code>url</code> field with the scheme, host, and
+port of the primary Litestream instance:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">dbs</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/var/lib/db1</span><span class="w">
+</span><span class="w">    </span><span class="nt">upstream</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l">http://${PRIMARY_HOSTNAME}:9090</span><span class="w">
+</span></code></pre></div><p>An <code>upstream.path</code> field is also available if the database path of the primary
+does not match the database path of the replica.</p>
+<h2 id="replica-settings">Replica settings<a href="#replica-settings" class="anchor" aria-hidden="true">#</a> </h2>
 <p>Litestream currently supports two types of replicas:</p>
 <ul>
 <li><code>&quot;abs&quot;</code> replicates a database to an Azure Blob Storage container.</li>
